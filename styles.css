@@ -1,0 +1,90 @@
+#album-art {
+    width:270px;
+    height:270px;
+    margin-top:20px;
+    margin-bottom:10px;
+}
+
+#now-playing {
+    margin-bottom:20px;
+}
+
+.aname {
+    font-size:14px;
+    line-height:20px;
+}
+
+
+#main {
+}
+
+#sidebar {
+    min-width:320px;
+    height:700px;
+}
+
+#attribute-select {
+    width:280px;
+}
+
+#song-title {
+    font-weight:bold;
+    height:18px;
+    overflow:hidden;
+}
+
+#artist-name{
+    font-size:12px;
+    height:18px;
+    overflow:hidden;
+}
+
+#now-playing-info {
+    font-size:14px;
+    line-height:18px;
+    height:36px;
+    overflow:hidden;
+    margin-top:8px;
+}
+
+.footer {
+    margin-top:10px;
+    margin-left:20px;
+}
+
+#simplot {
+}
+
+#tabber {
+    margin-top:20px;
+}
+
+#info {
+    height:20px;
+}
+
+#about {
+    display:none;
+}
+
+#scatter-display {
+    display:none;
+}
+
+.axis-selector {
+    margin-left:48px;
+}
+
+.stable {
+    margin-top:10px;
+}
+
+.stable th {
+    padding-left:10px;
+}
+
+.stable td {
+    width:10px;
+    text-align:left;
+}
+

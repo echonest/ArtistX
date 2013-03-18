@@ -1,0 +1,161 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <script src="bootstrap/js/bootstrap.min.js" type="text/javascript" charset="utf-8"> </script>
+        <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+        <script src="js/underscore-min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="amcharts/amcharts.js" type="text/javascript"></script>         
+        <script type="text/javascript" src="echonest.js"></script> 
+        <link rel="stylesheet" href="styles.css" type="text/css" media="screen">
+        <script src="https://www.rdio.com/api/api.js?client_id=OgW-lYpCf8pL6KeeIgIAfw"></script>
+        <script type="text/javascript" src="app.js"></script> 
+        <title> ArtistX</title>
+    </head>
+
+    <body>
+        <div id="wrap" class="navbar navbar-inverse">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a id='show-search' class="brand">ArtistX</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                            <li class="nav-choice active"><a id='show-main'>Distribution</a></li>
+                            <li class="nav-choice"><a id='show-scatter'>Scatter</a></li>
+                            <li class="nav-choice"><a id='show-about'>About</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hero" class="">
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div id='sidebar' class="span3 well">
+                        <div>
+                            <h3> ArtistX</h3>
+                            <div class="search">
+                                <input id="artist-input" type='text' class="input-xlarge" placeholder='Enter artist name'>
+                                <!--<button class='btn btn-primary'> Go </button> -->
+                            </div>
+                            <div id='info'> </div>
+                        </div>
+                        <div>
+                            <!--<img id="album-art" src="http://cdn3.rd.io/album/a/b/1/00000000000381ba/2/square-200.jpg">-->
+                            <img id="album-art" src="EN.png">
+                            <div id="controls">
+                                <button id="pause-play" class="btn btn-primary btn-mini"><i class="icon-white icon-play"></i></button>
+                                <button id="play-next" class="btn btn-primary btn-mini"><i class="icon-white icon-step-forward"></i></button>
+                            </div>
+                            <div>
+                                <div id="now-playing-info">
+                                    <div class='legend' id="song-title"> </div> 
+                                    <div class='legend' id="artist-name"> </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <table id="stable-1" class="stable offset1 span5 table table-striped table-bordered table-condensed">
+                                </table>
+
+                                <table id="stable-2" class="stable         span5 table table-striped table-bordered table-condensed">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="work" class="span8">
+                        <div id="main" class="main-display">
+                            <div id="chartdiv" style="margin-top: 30px; height: 600px;"></div>
+                            <div class="axis-selector">
+                                <label> Distribution </label>
+                                <select id='attribute-select' class="input-medium attribute-select"> </select>
+                            </div>
+                        </div>
+                        <div id="scatter-display" class="main-display">
+                            <div id="schartdiv" style="margin-top: 30px; height: 600px;"></div>
+                            <div id='selectors' class="offset1">
+                                <div class="row-fluid">
+                                    <div class="span3">
+                                        <label> X </label> <select id='x-attribute-select' class="input-medium attribute-select"> </select>
+                                    </div>
+                                    <div class="span3">
+                                        <label> Y </label> <select id='y-attribute-select' class="input-medium attribute-select"> </select>
+                                    </div>
+                                    <div class="span3">
+                                        <label> Size </label> <select id='z-attribute-select' class="input-medium attribute-select"> </select>
+                                    </div>
+                                    <div class="span3">
+                                        <label> Color </label> <select id='w-attribute-select' class="input-medium attribute-select"> </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="main-display" id="about">
+                               <h1> Artist X</h1>
+                              <div class="lead">
+                                This app lets you explore The Echo Nest song Attributes for any artist.  
+                                    <p> <br>
+                                    <b> Distribution</b> 
+                                    Type the name of 
+                                    the artist, select an attribute and see the distribution of songs with that attribute. Click
+                                    on a bar to start playing songs with that range of values for the attribute.
+
+                                    <p><br>
+                                    <b> Scatter</b> 
+                                    Type the name of the artist, select attributes for the X, Y axis along with the color and size
+                                    of the displayed points. Click on a song to hear it.
+
+                                    <p><br>
+                                    <b> Attributes</b> 
+                                    <ul>
+                                        <li> <strong> Danceability </strong> - how danceable a song is. 0 is least danceable, 100 is most danceable.
+                                        <li> <strong> Duration </strong> - the length of the song in seconds.
+                                        <li> <strong> Energy </strong> - the overall energy of the song, 0 is least, 100 is most.
+                                        <li> <strong> Hotttnesss </strong> - the popularity of the song, 0 is least, 100 is most.
+                                        <li> <strong> Key</strong> - the key the song. 0 is C, 1 is C# and so on.
+                                        <li> <strong> Liveness </strong> - the likelihood that a song was performed in front of an audience. Above
+                                        80 is usually live.
+                                        <li> <strong> Loudness </strong> - the overall loudness of the song in decibels.
+                                        <li> <strong> Mode</strong> - the mode of the song where major is 0 and  minor is 1.
+                                        <li> <strong> Speechiness </strong> - how much spoken word is in the song. 0 is least, 100 is most.
+                                        <li> <strong> Tempo </strong> - the most frequently occuring tempo in the song, in beats-per-minute.
+                                        <li> <strong> Time signature </strong> - the number of beats per measure in the song.
+                                    </ul>
+                              </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="container pull-left">
+                    <small> Powered by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>.  </small>
+                </div>
+            </footer>
+        </div>
+        </script>
+        <script src="bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript">
+              var _gaq = _gaq || [];
+              _gaq.push(['_setAccount', 'UA-3675615-11']);
+              _gaq.push(['_trackPageview']);
+
+              (function() {
+                var ga = document.createElement('script'); ga.type =
+            'text/javascript'; ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
+            'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+              })();
+        </script>
+    </body>
+</html>
