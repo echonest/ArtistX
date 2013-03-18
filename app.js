@@ -640,7 +640,7 @@ function fetchSongsForArtist(artistID, start) {
                 info("Found " + allSongs.length + " songs");
             });
 
-            if (data.response.songs.length < pageSize) {
+            if (allSongs.length >= 1000 || data.response.songs.length < pageSize) {
                 info("");
                 addURL('artist', curArtist);
                 normalizeSongs();
