@@ -5,13 +5,11 @@ var en = new EchoNest(api_key);
 var curArtist = '';
 var curSongs = null;
 var curSongIndex;
-var firstTime = true;
+var autoStop = false;
 
 var allSongs = [];
 var requests = 0;
-
-var params = {
-};
+var params = { };
 
 var charts = [
     {
@@ -260,7 +258,6 @@ function showBarChart(chartInfo) {
     chart.addListener("clickGraphItem", function(evt) {
         startPlayingSongs(hist[evt.index].songs);
     });
-
     chart.write("chartdiv");
 }
 
@@ -311,24 +308,6 @@ function getColor(val) {
     return cpallet[index];
 }
 
-function fakeData() {
-    var data = [];
-    var minSize = 3;
-    var sizeRange = 12;
-    for (var i = 0; i < 200; i++) {
-        var d = {
-            x : Math.random(),
-            y : Math.random() + Math.random()  + Math.random(),
-            z : Math.random() * sizeRange + minSize,
-            color : getColor(Math.random()),
-            title : 'title ' + Math.random(),
-        };
-        data.push(d);
-    }
-    return data;
-}
-
-
 function normalizeSongAttribute(attribute) {
     var min = 1000000;
     var max = -1000000;
@@ -352,7 +331,7 @@ function normalizeSongAttribute(attribute) {
 }
 
 
-function realData(chartX, chartY, chartZ, chartW) {
+function getSongData(chartX, chartY, chartZ, chartW) {
     var data = [];
     var minSize = 3;
     var sizeRange = 12;
@@ -397,7 +376,7 @@ function updateScatterChart() {
     makeURL();
 
     // SERIAL CHART
-    var dataProvider = realData(cx, cy, cz, cw);
+    var dataProvider = getSongData(cx, cy, cz, cw);
     chart = new AmCharts.AmXYChart();
     chart.dataProvider = dataProvider;
     chart.startDuration = 0;
@@ -575,18 +554,8 @@ function playSong(song) {
 }
 
 function queueSong(song) {
-    var rdioID = getRdioID(song);
-    currentSong = song;
-    R.player.play({
-        source: rdioID
-    });
-    $("#song-title").text(song.title);
-    $("#artist-name").text(song.artist_name);
-    updateSongTables(song);
-
-    setTimeout(function() {
-        R.player.pause();
-    }, 200);
+    autoStop = true;
+    playSong(song);
 }
 
 function playNextSong() {
@@ -610,6 +579,10 @@ function startPlayingSongs(songs) {
 
 
 function fetchAllSongsForArtist(artistName) {
+    fetchAllSongsForArtist2(artistName);
+}
+
+function fetchAllSongsForArtist1(artistName) {
     var slices = 4;
     var erange = 1. / slices;
     var start = 0;
@@ -624,6 +597,70 @@ function fetchAllSongsForArtist(artistName) {
         start += erange;
     }
 }
+
+
+function fetchAllSongsForArtist2(artistName) {
+    en.apiRequest('artist/search', {name:artistName, results:1, bucket:['id:rdio-US'], limit:true}, 
+        function(data) {
+            if (data.response.artists.length > 0) {
+                var artist = data.response.artists[0];
+                info("Found " + artist.name);
+                fetchSongsForArtist(artist.id, 0);
+            } else {
+                info("Can't find " + artistName);
+            }
+        },
+        function() {
+            info("Trouble finding music for " + artistName);
+        }
+    );
+}
+
+function fetchSongsForArtist(artistID, start) {
+    var pageSize = 100;
+    var args = {
+        bucket: ['id:rdio-US', 'tracks', 'audio_summary', 'song_hotttnesss'],
+        limit: true,
+        artist_id: artistID,
+        results: pageSize,
+        start: start,
+        sort: 'song_hotttnesss-desc'
+    };
+
+    if (start == 0) {
+        allSongs = [];
+    }
+
+    en.apiRequest('song/search', args, 
+        function(data) {
+
+            $.each(data.response.songs, function(index, song) {
+                curArtist = song.artist_name;
+                allSongs.push(song);
+                info("Found " + allSongs.length + " songs");
+            });
+
+            if (data.response.songs.length < pageSize) {
+                info("");
+                addURL('artist', curArtist);
+                normalizeSongs();
+                curSongs = allSongs;
+                curSongIndex = 0;
+                updateCharts();
+                if (!R.player.playState() == R.player.PLAYSTATE_PLAYING) {
+                    queueHotSong();
+                }
+            } else {
+                fetchSongsForArtist(artistID, start + pageSize);
+            }
+        },
+        function() {
+            info("Trouble finding music for " + artistName);
+        }
+    );
+}
+
+
 
 
 function createHistogram(chartInfo) {
@@ -702,7 +739,6 @@ function normalizeSongs() {
     normalizeSongAttribute('tempo');
     normalizeSongAttribute('loudness');
     normalizeSongAttribute('duration');
-    normalizeSongAttribute('duration');
 }
 
 
@@ -775,8 +811,7 @@ function fetchSongsForArtistByEnergy(artistName, minEnergy, maxEnergy) {
             addURL('artist', curArtist);
             normalizeSongs();
             updateCharts();
-            if (firstTime) {
-                firstTime = false;
+            if (!R.player.playState() == R.player.PLAYSTATE_PLAYING) {
                 queueHotSong();
             }
         }
@@ -804,6 +839,10 @@ R.ready(function() {
             $("#pause-play i").addClass("icon-play");
         }
         if (state == R.player.PLAYSTATE_PLAYING) {
+            if (autoStop) {
+                autoStop = false;
+                R.player.pause();
+            }
             $("#pause-play i").removeClass("icon-play");
             $("#pause-play i").addClass("icon-pause");
         }

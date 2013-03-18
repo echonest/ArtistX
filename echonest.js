@@ -40,7 +40,7 @@ EchoNest.prototype.apiRequest = function(method, args, callback, error, type) {
     }
 
     function myCallback(data) {
-        if (this.trace) {
+        if (that.trace) {
             console.log('apiRequest results', url, data);
             console.log('apiRequest time', that.now() - start, 'ms');
         }
