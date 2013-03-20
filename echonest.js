@@ -39,10 +39,9 @@ EchoNest.prototype.apiRequest = function(method, args, callback, error, type) {
         } 
     }
 
-    function myCallback(data) {
+    function myCallback(data, textStatus, jqXHR) {
         if (that.trace) {
-            console.log('apiRequest results', url, data);
-            console.log('apiRequest time', that.now() - start, 'ms');
+            console.log("status", isOK(data));
         }
         if (isOK(data)) {
             if (callback) {
@@ -63,7 +62,7 @@ EchoNest.prototype.apiRequest = function(method, args, callback, error, type) {
     if (this.tracer) {
         this.tracer(method, args);
     }
-    return $.ajax(url, {cache:false,  data:args, error: handleError,
+    return $.ajax(url, {cache:false,  data:args, dataType:'json', error: handleError,
             success:myCallback, traditional:true, type:type});
 }
 

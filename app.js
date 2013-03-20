@@ -11,6 +11,7 @@ var allSongs = [];
 var requests = 0;
 var params = { };
 
+en.trace=false;
 var charts = [
     {
         key: 'energy',
@@ -610,7 +611,8 @@ function fetchAllSongsForArtist2(artistName) {
                 info("Can't find " + artistName);
             }
         },
-        function() {
+        function(d) {
+            console.log("error", d);
             info("Trouble finding music for " + artistName);
         }
     );
@@ -654,7 +656,8 @@ function fetchSongsForArtist(artistID, start) {
                 fetchSongsForArtist(artistID, start + pageSize);
             }
         },
-        function() {
+        function(d) {
+            console.log("error", d);
             info("Trouble finding music for " + artistName);
         }
     );
