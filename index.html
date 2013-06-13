@@ -96,6 +96,10 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="offset1">
+                                <label> Search for a song by this artist </label>
+                                <input id="song-input" type='text' class="input-xlarge" placeholder='Enter song name'>
+                            </div>
                         </div>
 
                         <div class="main-display" id="about">
@@ -128,6 +132,8 @@
                                         <li> <strong> Speechiness </strong> - how much spoken word is in the song. 0 is least, 100 is most.
                                         <li> <strong> Tempo </strong> - the most frequently occuring tempo in the song, in beats-per-minute.
                                         <li> <strong> Time signature </strong> - the number of beats per measure in the song.
+                                        <li> <strong> Acousticness </strong> how acoustic vs. electric is the song
+                                        <li> <strong> Valence </strong> how positive or negative is the mood of the song
                                     </ul>
                               </div>
                         </div>
@@ -137,7 +143,7 @@
 
             <footer class="footer">
                 <div class="container pull-left">
-                    <small> Powered by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>.  </small>
+                    <small> <span id="power"> Powered </span> by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>.  </small>
                 </div>
             </footer>
         </div>

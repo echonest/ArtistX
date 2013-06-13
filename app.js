@@ -2,6 +2,8 @@ var chart;
 var api_key = '027ER5TKTSQ81BANR';
 var en = new EchoNest(api_key);
 
+en.end_point = 'http://developer.echonest.com/api/v4/';
+
 var curArtist = '';
 var curSongs = null;
 var curSongIndex;
@@ -22,6 +24,7 @@ var charts = [
             low: 0,
             high: 1
         },
+        available: function(song) { return true; },
         get: function(song) {
             return song.audio_summary.energy;
         },
@@ -39,6 +42,7 @@ var charts = [
             low: -60,
             high: 0
         },
+        available: function(song) { return true; },
         get: function(song) {
             return song.audio_summary.loudness;
         },
@@ -47,7 +51,7 @@ var charts = [
         },
     },
     {
-        key: 'danceability',
+        key: 'dance',
         range: {
             auto: false,
             scale: 100,
@@ -55,6 +59,7 @@ var charts = [
             low:  0,
             high: 1
         },
+        available: function(song) { return true; },
         get: function(song) {
             return song.audio_summary.danceability;
         },
@@ -71,6 +76,7 @@ var charts = [
             low:  0,
             high: 1
         },
+        available: function(song) { return true; },
         get: function(song) {
             return song.audio_summary.liveness;
         },
@@ -79,7 +85,7 @@ var charts = [
         },
     },
     {
-        key: 'speechiness',
+        key: 'speech',
         range: {
             auto: false,
             scale: 100,
@@ -87,6 +93,7 @@ var charts = [
             low:  0,
             high: 1
         },
+        available: function(song) { return true; },
         get: function(song) {
             return song.audio_summary.speechiness;
         },
@@ -95,7 +102,7 @@ var charts = [
         },
     },
     {
-        key: 'hotttnesss',
+        key: 'acoustic',
         range: {
             auto: false,
             scale: 100,
@@ -103,6 +110,53 @@ var charts = [
             low:  0,
             high: 1
         },
+
+        available : function(song) {
+            return 'acousticness' in song.audio_summary;
+        },
+
+        get: function(song) {
+            return song.audio_summary.acousticness;
+        },
+        nget: function(song) {
+            return song.audio_summary.acousticness;
+        },
+    },
+
+    {
+        key: 'valence',
+        range: {
+            auto: false,
+            scale: 100,
+            bins: 10,
+            low:  0,
+            high: 1
+        },
+
+        available : function(song) {
+            return 'valence' in song.audio_summary;
+        },
+
+        get: function(song) {
+            return song.audio_summary.valence;
+        },
+        nget: function(song) {
+            return song.audio_summary.valence;
+        },
+    },
+    /*
+    */
+
+    {
+        key: 'hottt',
+        range: {
+            auto: false,
+            scale: 100,
+            bins: 10,
+            low:  0,
+            high: 1
+        },
+        available: function(song) { return true; },
         get: function(song) {
             return song.song_hotttnesss;
         },
@@ -117,6 +171,7 @@ var charts = [
             scale: 1,
             bins: 10
         },
+        available: function(song) { return true; },
         get: function(song) {
             return song.audio_summary.tempo;
         },
@@ -133,6 +188,7 @@ var charts = [
             scale: 1,
             bins: 10
         },
+        available: function(song) { return true; },
         get: function(song) {
             return song.audio_summary.duration;
         },
@@ -150,6 +206,7 @@ var charts = [
             scale: 1,
             bins: 12
         },
+        available: function(song) { return true; },
         get: function(song) {
             return song.audio_summary.key;
         },
@@ -186,6 +243,7 @@ var charts = [
             scale: 1,
             bins: 8 
         },
+        available: function(song) { return true; },
         get: function(song) {
             return song.audio_summary.time_signature;
         },
@@ -199,14 +257,15 @@ var charts = [
             scale: 1,
             bins: 2
         },
+        available: function(song) { return true; },
         get: function(song) {
             return song.audio_summary.mode;
         },
 
         getLabel: function(label) {
             var mode = {
-                0 : 'major',
-                1 : 'minor',
+                0 : 'minor',
+                1 : 'major',
             }
 
             if (label in mode) {
@@ -289,6 +348,8 @@ var pallet2 = [
     color(168, 0, 0),
 ];
 
+var highlightColor = color(0xff, 0x80, 0x00);
+
 
 function color(r, g, b) {
     function hc(c) {
@@ -346,14 +407,48 @@ function getSongData(chartX, chartY, chartZ, chartW) {
             x : get(chartX, song),
             y : get(chartY, song),
             z : chartZ.nget(song) * sizeRange + minSize,
+            z2 : chartZ.nget(song) * sizeRange + minSize,
+            bullet: 'round',
             color : getColor(chartW.nget(song)),
+            color2 : getColor(chartW.nget(song)),
             title : song.title,
             song: song
         };
+        song.pointData = d;
         data.push(d);
     });
     return data;
 }
+
+
+function highlightSong(song, state) {
+    if (state) {
+        song.pointData.z = 20;
+        song.pointData.bullet = 'triangleUp';
+        song.pointData.sortOrder = 1;
+        song.pointData.color = highlightColor;
+    } else {
+        song.pointData.z = song.pointData.z2;
+        song.pointData.bullet = 'round';
+        song.pointData.sortOrder = 0;
+        song.pointData.color = song.pointData.color2;
+    }
+}
+
+function highlightSongByName(name) {
+    name = name.toLowerCase();
+    $.each(allSongs, function(index, song) {
+        if (name.length > 0 && song.title.toLowerCase().indexOf(name) >= 0) {
+            highlightSong(song, true);
+        } else {
+            highlightSong(song, false);
+        }
+    });
+
+    chart.dataProvider = _.sortBy(chart.dataProvider, 'sortOrder');
+    chart.validateData();
+}
+
 
 function updateScatterChart() {
     var chartX = $("#x-attribute-select :selected").val();
@@ -409,6 +504,7 @@ function updateScatterChart() {
     graph.balloonText = "[[title]]";
     graph.xField = 'x';
     graph.yField = 'y';
+    graph.bulletField = 'bullet';
     graph.colorField = 'color';
     graph.lineAlpha = 0;
     graph.bullet = 'round';
@@ -430,7 +526,7 @@ function updateScatterChart() {
     });
 
     chart.addListener("clickGraphItem", function(evt) {
-        var song = dataProvider[evt.index].song;
+        var song = chart.dataProvider[evt.index].song;
         playSong(song);
     });
 
@@ -497,6 +593,10 @@ function initUI() {
         makeScatterChartActive();
     });
 
+    $("#song-input").change(function() {
+        var songName = $("#song-input").val();
+        highlightSongByName(songName);
+    });
     resizeChart();
 }
 
@@ -601,6 +701,7 @@ function fetchAllSongsForArtist1(artistName) {
 
 
 function fetchAllSongsForArtist2(artistName) {
+    $("#artist-input").prop('disabled', true);
     en.apiRequest('artist/search', {name:artistName, results:1, bucket:['id:rdio-US'], limit:true}, 
         function(data) {
             if (data.response.artists.length > 0) {
@@ -635,7 +736,6 @@ function fetchSongsForArtist(artistID, start) {
 
     en.apiRequest('song/search', args, 
         function(data) {
-
             $.each(data.response.songs, function(index, song) {
                 curArtist = song.artist_name;
                 allSongs.push(song);
@@ -643,6 +743,7 @@ function fetchSongsForArtist(artistID, start) {
             });
 
             if (allSongs.length >= 1000 || data.response.songs.length < pageSize) {
+                $("#artist-input").prop('disabled', false);
                 info("");
                 addURL('artist', curArtist);
                 normalizeSongs();
@@ -746,7 +847,7 @@ function normalizeSongs() {
 
 
 function updateSongTables(song) {
-    var rowsPerTable = 6
+    var rowsPerTable = Math.ceil(charts.length / 2);
     $(".stable").empty();
 
 
