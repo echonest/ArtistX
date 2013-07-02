@@ -1,9 +1,5 @@
+var en;
 var chart;
-var api_key = '027ER5TKTSQ81BANR';
-var en = new EchoNest(api_key);
-
-en.end_point = 'http://developer.echonest.com/api/v4/';
-
 var curArtist = '';
 var curSongs = null;
 var curSongIndex;
@@ -13,7 +9,6 @@ var allSongs = [];
 var requests = 0;
 var params = { };
 
-en.trace=false;
 var charts = [
     {
         key: 'energy',
@@ -927,33 +922,6 @@ function fetchSongsForArtistByEnergy(artistName, minEnergy, maxEnergy) {
 }
 
 
-R.ready(function() {
-    R.player.on("change:playingTrack", function(track) {
-        if (track) {
-            var image = track.attributes.icon;
-            $("#album-art").attr('src', image);
-        } else {
-            playNextSong();
-        }
-    });
-
-    R.player.on("change:playState", function(state) {
-        if (state == R.player.PLAYSTATE_PAUSED) {
-            $("#pause-play i").removeClass("icon-pause");
-            $("#pause-play i").addClass("icon-play");
-        }
-        if (state == R.player.PLAYSTATE_PLAYING) {
-            if (autoStop) {
-                autoStop = false;
-                R.player.pause();
-            }
-            $("#pause-play i").removeClass("icon-play");
-            $("#pause-play i").addClass("icon-pause");
-        }
-    });
-
-    R.player.on("change:playingSource", function(track) {});
-});
 
 function urldecode(str) {
    return decodeURIComponent((str+'').replace(/\+/g, '%20'));
@@ -1027,6 +995,36 @@ function processParams() {
 }
 
 $(document).ready(function() {
-    initUI();
-    AmCharts.ready( function() { processParams()});
+    fetchApiKey( function(api_key, isLoggedIn) {
+        en = new EchoNest(api_key);
+        R.ready(function() {
+            initUI();
+            R.player.on("change:playingTrack", function(track) {
+                if (track) {
+                    var image = track.attributes.icon;
+                    $("#album-art").attr('src', image);
+                } else {
+                    playNextSong();
+                }
+            });
+
+            R.player.on("change:playState", function(state) {
+                if (state == R.player.PLAYSTATE_PAUSED) {
+                    $("#pause-play i").removeClass("icon-pause");
+                    $("#pause-play i").addClass("icon-play");
+                }
+                if (state == R.player.PLAYSTATE_PLAYING) {
+                    if (autoStop) {
+                        autoStop = false;
+                        R.player.pause();
+                    }
+                    $("#pause-play i").removeClass("icon-play");
+                    $("#pause-play i").addClass("icon-pause");
+                }
+            });
+
+            R.player.on("change:playingSource", function(track) {});
+            AmCharts.ready( function() { processParams()});
+        });
+    });
 });
